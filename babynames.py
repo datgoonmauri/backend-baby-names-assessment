@@ -14,6 +14,7 @@ import sys
 import re
 import argparse
 
+
 """
 Define the extract_names() function below and change main()
 to call it.
@@ -40,27 +41,40 @@ Suggested milestones for incremental development:
 
 
 def extract_names(filename):
-    """
-    Given a single file name for babyXXXX.html, returns a single list starting
-    with the year string followed by the name-rank strings in alphabetical order.
-    ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
-    """
     names = []
-    # +++your code here+++
+    with open(filename) as f:
+        text = f.read()
+    baby_year = re.search(r'Popularity\sin\s(d\d\d\d)', text)
+    if not baby_year:
+
+        sys.stderr.write('No year could be found!\n')
+        sys.exit(1)
+    year = baby_year.group(1)
+    names.append(year)
+
+    tuples = re.findall(r'<td>(\d+)</td><td>(\w+)</td>\<td>(\w+)</td>', text)
+    names_rank = {}
+    for ranked in tuples:
+        (rank, boyname, girlname) = ranked
+    if boyname not in names_rank:
+            names_rank[boyname] = rank
+    if girlname not in names_rank:
+            names_rank[girlname] = rank
+    sort_names = sorted(names_rank.keys())
+    for name in sort_names:
+        names.append(name + " " + names_rank[name])
+
     return names
 
 
 def create_parser():
     """Create a cmd line parser object with 2 argument definitions"""
     parser = argparse.ArgumentParser(description="Extracts and alphabetizes baby names from html.")
-    parser.add_argument(
-        '--summaryfile', help='creates a summary file', action='store_true')
+    parser.add_argument('--summaryfile', help='creates a summary file', action='store_true')
     # The nargs option instructs the parser to expect 1 or more filenames.
     # It will also expand wildcards just like the shell, e.g. 'baby*.html' will work.
     parser.add_argument('files', help='filename(s) to parse', nargs='+')
     return parser
-
-
 def main(args):
     # Create a command-line parser object with parsing rules
     parser = create_parser()
@@ -70,19 +84,23 @@ def main(args):
     if not ns:
         parser.print_usage()
         sys.exit(1)
-
-    file_list = ns.files
-
-    # option flag
+        
+        file_list = ns.files
+        
+    for filename in file_list:
+        print("Running File""{}".format(filename))
+        names = extract_names(filename)
+    with open(filename) as f:
+        text = f.read()
+        
     create_summary = ns.summaryfile
 
-    # For each filename, call `extract_names` with that single file.
-    # Format the resulting list a vertical list (separated by newline \n)
-    # Use the create_summary flag to decide whether to print the list,
-    # or to write the list to a summary file e.g. `baby1990.html.summary`
+    if create_summary:
+        with open(filename + ".summary", "w") as output:
+            output.write(text + '\n')
+    else:
+        print(text)
 
-    # +++your code here+++
 
-
-if __name__ == '__main__':
-    main(sys.argv[1:])
+    if __name__ == '__main__':
+        main (sys.argv[1:])
