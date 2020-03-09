@@ -83,7 +83,7 @@ def main():
     del args[0]
   for filename in args:
     names = extract_names(filename)
-    text = '\n'.join(names + "\n")
+    text = '\n'.join(names)
     if summary:
         with open(filename + '.summary', 'w') as output:
          output.write(text + '\n')
