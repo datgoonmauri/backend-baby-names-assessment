@@ -31,6 +31,8 @@ Suggested milestones for incremental development:
  -Fix main() to use the extract_names list
 """
 
+
+
 def extract_names(filename):
     names = []
     with open(filename) as f:
@@ -59,6 +61,14 @@ def extract_names(filename):
         names.append(name + " " + rank_names[name])
     return names
 
+def create_parser():
+    parser = argparse.ArgumentParser(
+        description="Extracts and alphabetizes baby names from html")
+    parser.add_argument(
+        "--summaryfile", help="creates a summary file ", action="store_true")
+    parser.add_argument("files", help="filename(s) to parse", nargs="+")
+    return parser
+
 
 def main():
     
@@ -73,11 +83,10 @@ def main():
     del args[0]
   for filename in args:
     names = extract_names(filename)
-    text = '\n'.join(names)
+    text = '\n'.join(names + "\n")
     if summary:
-      outf = open(filename + '.summary', 'w')
-      outf.write(text + '\n')
-      outf.close()
+        with open(filename + '.summary', 'w') as output:
+         output.write(text + '\n')
     else:
       print(text)
 
